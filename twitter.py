@@ -23,12 +23,16 @@ api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
 """[summary]
    This function will resuls a list of statuses 
 """
-def search_multiple_times(query, language, times = 1):
+def search_multiple_times(query, language, count_per_search, times = 1):
     # Initialize the search
-    maxId = 1979357521776578561
+    # Since twitter does not provide paging functionatinality
+    # As its doc suggests, this function use maxId to extract
+    primitiveStatus =  api.search(q=query, lang=language, count=count_per_search)['statuses']
+    maxId = min(list(map(lambda x:x['id'], primitiveStatus)))
+    result = primitiveStatus
     
     for i in range(1, times):
-        currStatus =  api.search(q=query, lang=language, count=100, maxId=maxId)['statuses']
+        currStatus =  api.search(q=query, lang=language, count=count_per_search, max_id=maxId)['statuses']
         result += currStatus
         maxId = min(list(map(lambda x:x['id'], currStatus)))
         sleep(5)
